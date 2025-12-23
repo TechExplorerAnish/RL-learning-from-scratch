@@ -4,12 +4,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>rl-with-grid-problem</title>
+    <title>RL Grid World</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <canvas id='myCanvas'></canvas>
+    <div class="container">
+        <header class="header">
+            <h1>🤖 Reinforcement Learning Grid World</h1>
+            <p class="subtitle">Watch an agent learn to navigate from start to goal while avoiding danger zones</p>
+        </header>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <span class="stat-icon">📊</span>
+                <div class="stat-info">
+                    <span class="stat-label">Episode</span>
+                    <span class="stat-value" id="episodeDisplay">0</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">👣</span>
+                <div class="stat-info">
+                    <span class="stat-label">Steps</span>
+                    <span class="stat-value" id="stepsDisplay">0</span>
+                </div>
+            </div>
+            <div class="stat-card highlight">
+                <span class="stat-icon">🏆</span>
+                <div class="stat-info">
+                    <span class="stat-label">Best Steps</span>
+                    <span class="stat-value" id="minStepsDisplay">∞</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">🎯</span>
+                <div class="stat-info">
+                    <span class="stat-label">Epsilon</span>
+                    <span class="stat-value" id="epsilonDisplay">0.60</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="startBtn" class="btn btn-primary">▶ Start Training</button>
+            <button id="pauseBtn" class="btn btn-secondary" disabled>⏸ Pause</button>
+            <button id="resetBtn" class="btn btn-danger">🔄 Reset</button>
+        </div>
+
+        <div class="speed-control">
+            <label for="speedSlider">⚡ Speed:</label>
+            <input type="range" id="speedSlider" min="0" max="100" value="100">
+            <span id="speedValue">Max</span>
+        </div>
+
+        <p class="hint">💡 Click on grid cells to toggle danger zones before starting</p>
+
+        <div class="canvas-wrapper">
+            <canvas id='myCanvas'></canvas>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-color start"></span>
+                <span>Start</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color goal"></span>
+                <span>Goal</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color danger"></span>
+                <span>Danger Zone</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color agent"></span>
+                <span>Agent</span>
+            </div>
+        </div>
+    </div>
+
     <script src="agent.js"></script>
     <script src="environment.js"></script>
     <script src="main.js"></script>

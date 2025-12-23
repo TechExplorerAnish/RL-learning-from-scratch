@@ -49,6 +49,7 @@ class Agent {
                 bestAction = action;
             }
         }
+       
         return bestAction;
     }
 
