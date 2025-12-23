@@ -33,4 +33,31 @@ class Environment{
         ctx.fillRect(offsetX + this.goal.x * cellSize, offsetY + this.goal.y * cellSize, cellSize, cellSize);
 
     }
+
+    reset(){
+        return { ...this.start };
+    }
+    
+    step(state, action){
+        // let newState = { x: state.x, y: state.y };
+        let {x, y} = state;
+        switch(action){
+            case 'up': y--;
+                break;
+            case 'down': y++;
+                break;
+            case 'left': x--;
+                break;
+            case 'right': x++;
+                break;
+        }
+        // Ensure the agent stays within bounds
+        x = Math.max(0, Math.min(this.gridSize - 1, x));
+        y = Math.max(0, Math.min(this.gridSize - 1, y));
+
+        const done = (x === this.goal.x && y === this.goal.y);
+        const reward = done ? 1 : -0.01; // Small negative reward each step to encourage faster reaching of goal
+        
+        return {state: {x, y}, reward, done};
+    }
 }

@@ -20,3 +20,14 @@ canvas.height = height;
 const environment = new Environment(gridSize, start, goal);
 
 environment.draw(ctx, cellSize, offsetX, offsetY);
+
+const actions = ['up', 'down', 'left', 'right'];
+const agent = new Agent(actions, {
+    alpha: 0.1,
+    gamma: 0.9,
+    epsilon: 0.2
+});
+
+let currentState = { ...start };
+let steps = 0;
+const maxSteps = 1000;
