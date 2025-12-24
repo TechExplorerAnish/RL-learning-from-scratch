@@ -158,6 +158,7 @@ class Environment {
 - **⏸️ Pause / ▶️ Resume** - Pause and resume training
 - **🔄 Reset** - Clear Q-table and restart
 - **📍 Placement Mode** - Switch between placing Danger Zones, Start, and Goal
+- **▶️ Run Agent** - Execute the learned policy (greedy run, no learning)
 
 ### Grid Size Selector
 - **Dropdown menu** - Choose grid size from 3×3 to 10×10
@@ -193,6 +194,7 @@ class Environment {
 4. **Click cells** on the grid to place according to the mode (optional)
 5. **Adjust speed** using the slider (optional)
 6. **Click "Start Training"** to begin
+7. After training, **click "Run Agent"** to watch the agent follow the learned policy (no exploration)
 
 ### Watching the Agent Learn
 

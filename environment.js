@@ -9,6 +9,7 @@ class Environment {
         this.start = start;
         this.goal = goal;
         this.dangerZones = []; // Array to hold danger zone positions
+        this.isdangerzonevisited = false;  
     }
 
     draw(ctx, cellSize, offsetX = 0, offsetY = 0) {
@@ -47,6 +48,7 @@ class Environment {
 
     step(state, action) {
         // let newState = { x: state.x, y: state.y };
+        this.visitdangerzone = false;
         let { x, y } = state;
         switch (action) {
             case 'up': y--;
@@ -77,6 +79,7 @@ class Environment {
 
         if (this.dangerZones.some(zone => zone.x === x && zone.y === y)) {
             currentReward = -1; // Penalty for stepping into a danger zone
+            this.isdangerzonevisited = true;
         }
         else if (done)
             currentReward = 1; // Reward for reaching the goal
@@ -85,7 +88,7 @@ class Environment {
         }
         const reward = currentReward  // Small negative reward each step to encourage faster reaching of goal
 
-        return { state: { x, y }, reward, done };
+        return { state: { x, y }, reward, done, isdangerzonevisited: this.isdangerzonevisited  };
     }
 
     showCurrentState(ctx, cellSize, offsetX = 0, offsetY = 0, state) {

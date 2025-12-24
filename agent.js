@@ -8,6 +8,7 @@ class Agent {
         this.alpha = alpha; // Learning rate
         this.gamma = gamma; // Discount factor
         this.epsilon = epsilon; // Exploration rate
+        this.isvisitdangerzone = false;
         this.qTable = {}; // Q-value table
     }
 
@@ -50,6 +51,22 @@ class Agent {
             }
         }
        
+        return bestAction;
+    }
+
+    // Choose action purely greedily (no exploration)
+    chooseGreedyAction(state) {
+        this.initializeState(state);
+        const stateKey = this.getStateKey(state);
+        let maxQ = -Infinity;
+        let bestAction = this.actions[0];
+        for (const action of this.actions) {
+            const qValue = this.qTable[stateKey][action];
+            if (qValue > maxQ) {
+                maxQ = qValue;
+                bestAction = action;
+            }
+        }
         return bestAction;
     }
 

@@ -12,11 +12,12 @@ const epsilonDisplay = document.getElementById('epsilonDisplay');
 const startBtn = document.getElementById('startBtn');
 const pauseBtn = document.getElementById('pauseBtn');
 const resetBtn = document.getElementById('resetBtn');
+const runPolicyBtn = document.getElementById('runPolicyBtn');
 
 // Speed control
 const speedSlider = document.getElementById('speedSlider');
 const speedValue = document.getElementById('speedValue');
-let executionDelay = 0; // 0ms = max speed
+let executionDelay = 10; // 0ms = max speed
 
 // Grid size control
 const gridSizeSelect = document.getElementById('gridSizeSelect');
@@ -75,6 +76,8 @@ let minStep = Infinity;
 let isPaused = false;
 let isTraining = false;
 let shouldStop = false;
+let isRunningPolicy = false;
+let isTrainingCompleted = false;
 
 // Function to recalculate grid dimensions
 function clampPosition(pos) {
@@ -136,7 +139,7 @@ drawGrid();
 
 // Click handler for placement mode (danger zones/start/goal)
 canvas.addEventListener('click', (e) => {
-    if (isTraining) return; // Don't allow changes during training
+    if (isTraining || isRunningPolicy || isTrainingCompleted) return; // Don't allow changes during training or policy run
 
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -203,6 +206,7 @@ async function train(episodes = 1000) {
     startBtn.disabled = true;
     pauseBtn.disabled = false;
     gridSizeSelect.disabled = true;
+    runPolicyBtn.disabled = true;
 
     for (let i = 0; i < episodes; i++) {
         if (shouldStop) break;
@@ -221,7 +225,7 @@ async function train(episodes = 1000) {
             agent.initializeState(state);
             const action = agent.chooseAction(state);
 
-            const { state: nextState, reward, done: finished } =
+            const { state: nextState, reward, done: finished , isdangerzonevisited } =
                 environment.step(state, action);
             agent.updateQValue(state, action, reward, nextState);
             environment.showCurrentState(ctx, cellSize, offsetX, offsetY, nextState);
@@ -232,10 +236,14 @@ async function train(episodes = 1000) {
             updateDisplay(stepsDisplay, steps);
             updateDisplay(epsilonDisplay, agent.epsilon.toFixed(3));
 
-            if (finished) {
-                console.log(`Episode ${i + 1} finished in ${steps} steps.`);
+            if (finished && !isdangerzonevisited) {
                 minStep = Math.min(minStep, steps);
                 updateDisplay(minStepsDisplay, minStep);
+                if(i === episodes - 1) {
+                    console.log('Training completed');
+                    isTrainingCompleted = true;
+                    startBtn.disabled = true;
+                }
             }
 
             // Apply execution delay based on speed slider
@@ -249,17 +257,19 @@ async function train(episodes = 1000) {
     }
 
     isTraining = false;
-    startBtn.disabled = false;
     pauseBtn.disabled = true;
     pauseBtn.textContent = '⏸ Pause';
     gridSizeSelect.disabled = false;
     isPaused = false;
+    runPolicyBtn.disabled = false; // Enable running trained policy
     console.log(agent.qTable);
 }
 
 // Button event listeners
 startBtn.addEventListener('click', () => {
-    train();
+        if(isTrainingCompleted)
+            return;
+        train();
 });
 
 pauseBtn.addEventListener('click', () => {
@@ -271,6 +281,8 @@ resetBtn.addEventListener('click', () => {
     shouldStop = true;
     isPaused = false;
     isTraining = false;
+    isRunningPolicy = false;
+    isTrainingCompleted = false;
 
     environment.dangerZones = []; // Clear danger zones
     // Reset agent
@@ -300,9 +312,66 @@ resetBtn.addEventListener('click', () => {
     pauseBtn.disabled = true;
     pauseBtn.textContent = '⏸ Pause';
     gridSizeSelect.disabled = false;
+    runPolicyBtn.disabled = true; // qTable cleared
 
     // Redraw grid
     drawGrid();
+});
+
+// Run agent using learned policy (greedy, no updates)
+async function runPolicy() {
+    if (isTraining) return;
+    isRunningPolicy = true;
+    shouldStop = false;
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
+    gridSizeSelect.disabled = true;
+    runPolicyBtn.disabled = true;
+
+    let state = environment.reset();
+    let done = false;
+    steps = 0;
+    // Show epsilon as 0 during policy run
+    updateDisplay(epsilonDisplay, '0.00');
+
+    while (!done) {
+        if (shouldStop) break;
+        await waitWhilePaused();
+
+        ctx.fillStyle = '#2d3748';
+        ctx.fillRect(0, 0, width, height);
+        environment.draw(ctx, cellSize, offsetX, offsetY);
+        agent.initializeState(state);
+        const action = agent.chooseGreedyAction(state);
+
+        const { state: nextState, reward, done: finished } = environment.step(state, action);
+        environment.showCurrentState(ctx, cellSize, offsetX, offsetY, nextState);
+        steps++;
+
+        updateDisplay(stepsDisplay, steps);
+
+        if (finished) {
+            minStep = Math.min(minStep, steps);
+            updateDisplay(minStepsDisplay, minStep);
+        }
+
+        if (executionDelay > 0) {
+            await new Promise(resolve => setTimeout(resolve, executionDelay));
+        }
+        state = nextState;
+        done = finished;
+    }
+
+    isRunningPolicy = false;
+    // startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    pauseBtn.textContent = '⏸ Pause';
+    // gridSizeSelect.disabled = false;
+    runPolicyBtn.disabled = false;
+}
+
+runPolicyBtn.addEventListener('click', () => {
+    runPolicy();
 });
 
 
