@@ -55,13 +55,37 @@
             <button id="resetBtn" class="btn btn-danger">🔄 Reset</button>
         </div>
 
-        <div class="speed-control">
-            <label for="speedSlider">⚡ Speed:</label>
-            <input type="range" id="speedSlider" min="0" max="100" value="100">
-            <span id="speedValue">Max</span>
+        <div class="settings-row">
+            <div class="grid-control">
+                <label for="gridSizeSelect">🔲 Grid Size:</label>
+                <select id="gridSizeSelect">
+                    <option value="3">3 × 3</option>
+                    <option value="4">4 × 4</option>
+                    <option value="5" selected>5 × 5</option>
+                    <option value="6">6 × 6</option>
+                    <option value="7">7 × 7</option>
+                    <option value="8">8 × 8</option>
+                    <option value="10">10 × 10</option>
+                </select>
+            </div>
+
+            <div class="speed-control">
+                <label for="speedSlider">⚡ Speed:</label>
+                <input type="range" id="speedSlider" min="0" max="100" value="20">
+                <span id="speedValue">Max</span>
+            </div>
+
+            <div class="placement-control">
+                <label for="placementModeSelect">📍 Placement Mode:</label>
+                <select id="placementModeSelect">
+                    <option value="danger" selected>Danger Zones</option>
+                    <option value="start">Set Start</option>
+                    <option value="goal">Set Goal</option>
+                </select>
+            </div>
         </div>
 
-        <p class="hint">💡 Click on grid cells to toggle danger zones before starting</p>
+        <p class="hint">💡 Use Placement Mode to set Start/Goal or toggle Danger Zones before starting</p>
 
         <div class="canvas-wrapper">
             <canvas id='myCanvas'></canvas>
