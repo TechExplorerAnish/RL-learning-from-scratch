@@ -130,7 +130,7 @@ gridSizeSelect.addEventListener('change', () => {
 
 // Initial draw
 function drawGrid() {
-    console.log('Drawing grid');
+    // console.log('Drawing grid');
     ctx.fillStyle = '#2d3748';
     ctx.fillRect(0, 0, width, height);
     environment.draw(ctx, cellSize, offsetX, offsetY);
@@ -213,6 +213,7 @@ async function train(episodes = 1000) {
 
         let state = environment.reset();
         let done = false;
+        environment.isdangerzonevisited = false;
         steps = 0;
         while (!done) {
             if (shouldStop) break;
@@ -225,12 +226,12 @@ async function train(episodes = 1000) {
             agent.initializeState(state);
             const action = agent.chooseAction(state);
 
-            const { state: nextState, reward, done: finished , isdangerzonevisited } =
+            const { state: nextState, reward, done: finished, isdangerzonevisited } =
                 environment.step(state, action);
             agent.updateQValue(state, action, reward, nextState);
             environment.showCurrentState(ctx, cellSize, offsetX, offsetY, nextState);
             steps++;
-
+            // console.log(finished, isdangerzonevisited);
             // Update HTML displays
             updateDisplay(episodeDisplay, i + 1);
             updateDisplay(stepsDisplay, steps);
@@ -239,7 +240,7 @@ async function train(episodes = 1000) {
             if (finished && !isdangerzonevisited) {
                 minStep = Math.min(minStep, steps);
                 updateDisplay(minStepsDisplay, minStep);
-                if(i === episodes - 1) {
+                if (i === episodes - 1) {
                     console.log('Training completed');
                     isTrainingCompleted = true;
                     startBtn.disabled = true;
@@ -262,14 +263,14 @@ async function train(episodes = 1000) {
     gridSizeSelect.disabled = false;
     isPaused = false;
     runPolicyBtn.disabled = false; // Enable running trained policy
-    console.log(agent.qTable);
+    // console.log(agent.qTable);
 }
 
 // Button event listeners
 startBtn.addEventListener('click', () => {
-        if(isTrainingCompleted)
-            return;
-        train();
+    if (isTrainingCompleted)
+        return;
+    train();
 });
 
 pauseBtn.addEventListener('click', () => {
